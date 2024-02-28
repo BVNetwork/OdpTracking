@@ -33,7 +33,7 @@ namespace OdpTracking
             return true;
         }
 
-        public Uri CreateUri(string path, string? query = null)
+        public Uri CreateUri(string path, string query = null)
         {
             if(string.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path), "Path cannot be null");
             

@@ -10,6 +10,7 @@ namespace OdpTracking
             services.AddTransient<IOdpServerSideTracker, OdpServerSideTracker>();
             services.AddTransient<IOdpTrackerOptions, OdpTrackerOptions>();
             services.AddTransient<IOdpHttpClientHelper, OdpHttpClientHelper>();
+            services.AddTransient<ITrackerIdProvider, ConfigurationTrackerIdProvider>();
             
             return services;
         }

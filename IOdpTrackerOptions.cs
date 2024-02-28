@@ -5,6 +5,6 @@ namespace OdpTracking
         public string PrivateKey { get; }
         public string BaseUrl{ get; }
         public bool IsConfigured();
-        public Uri CreateUri(string path, string? query = null);
+        public Uri CreateUri(string path, string query = null);
     }
 }

@@ -20,7 +20,7 @@ namespace OdpTracking
             _logger = logger;
         }
 
-        public T? GetJson<T>(string apiMethod, string query, string payLoad)
+        public T GetJson<T>(string apiMethod, string query, string payLoad)
         {
             HttpResponseMessage response = null;
             bool success = TryMakeHttpCall(HttpMethod.Get,
