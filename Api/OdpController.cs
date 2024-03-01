@@ -27,7 +27,7 @@ namespace OdpTracking.Api
         public IActionResult Me()
         {
             // Pick up vuid from cookie
-            var vuid = _odpServerSideTracker.GetVuidFromHttpRequest(Request);
+            var vuid = Request.GetVuid();
             if(string.IsNullOrEmpty(vuid) == false)
             {
                 var profile = _clientHelper.GetJson<OdpDtoCustomerProfile>("/v3/profiles", "vuid=" + vuid, null);

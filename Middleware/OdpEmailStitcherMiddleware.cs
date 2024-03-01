@@ -41,10 +41,10 @@ namespace OdpTracking.Middleware
                 {
                     if (email.Count > 0)
                     {
-                        string vuid = _odpServerSideTracker.GetVuidFromHttpRequest(context.Request);
+                        string vuid = context.Request.GetVuid();
                         if (vuid != null)
                         {
-                            _odpServerSideTracker.DiscoverProfile(email[0], vuid);
+                            _odpServerSideTracker.UpdateProfile(vuid, email[0]);
                         }
                     }
                 }

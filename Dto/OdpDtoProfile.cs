@@ -3,6 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace OdpTracking.Dto
 {
+    /// <summary>
+    /// Simple profile. Depending on configuration, the profile could
+    /// be much richer.
+    /// </summary>
     public class OdpDtoProfile
     {
         public string Email { get; set; }

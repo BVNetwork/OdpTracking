@@ -12,18 +12,18 @@ namespace OdpTracking
 
     public class OdpServerSideTracker : IOdpServerSideTracker
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        const string apiProfiles = "/v3/profiles";
+        const string apiProducts = "/v3/objects/products";
+        const string apiEvents = "/v3/events";
         private readonly ILogger<OdpServerSideTracker> _logger;
         private readonly IOdpHttpClientHelper _httpClientHelper;
         private readonly IOdpTrackerOptions _odpTrackerOptions;
 
-        public OdpServerSideTracker(IHttpClientFactory httpClientFactory, 
-            IConfiguration configuration, 
+        public OdpServerSideTracker(
             ILogger<OdpServerSideTracker> logger,
             IOdpHttpClientHelper httpClientHelper,
             IOdpTrackerOptions odpTrackerOptions)
         {
-            _httpClientFactory = httpClientFactory;
             _logger = logger;
             _httpClientHelper = httpClientHelper;
             _odpTrackerOptions = odpTrackerOptions;
@@ -31,10 +31,19 @@ namespace OdpTracking
 
         public void TrackLogin(string email, string vuid)
         {
+            TrackSingleEvent(email, vuid, "account", "login");
+        }
+        public void TrackLogout(string email, string vuid)
+        {
+            TrackSingleEvent(email, vuid, "account", "logout");
+        }
+        
+        public void TrackSingleEvent(string email, string vuid, string type, string action)
+        {
             if(_odpTrackerOptions.IsConfigured() == false)
                 return;
             
-            if (string.IsNullOrEmpty(email) == false && string.IsNullOrEmpty(vuid) == false)
+            if (HasEmailAndVuid(email, vuid))
             {
                 /*
 {
@@ -49,17 +58,15 @@ namespace OdpTracking
 
                 var data = new OdpDtoEvent
                 {
-                    Action = "login",
-                    Type = "account",
+                    Action = action,
+                    Type = type,
                     Identifiers = new OdpDtoIdentifiers
                     {
-                        Email = email,
+                        Email = EncodeEmail(email),
                         Vuid = vuid
                     }
                 };
-                string payLoad = SerializeToJson(data);
-
-                PostPayload(payLoad, "/v3/events");
+                TrackEvent(data);
             }
 
         }
@@ -69,7 +76,7 @@ namespace OdpTracking
             if(_odpTrackerOptions.IsConfigured() == false)
                 return;
 
-            if (string.IsNullOrEmpty(email) == false || string.IsNullOrEmpty(vuid) == false)
+            if (HasEmailAndVuid(email, vuid))
             {
                 /*
 {
@@ -88,14 +95,14 @@ namespace OdpTracking
                     Type = "order",
                     Identifiers = new OdpDtoIdentifiers
                     {
-                        Email = email,
+                        Email = EncodeEmail(email),
                         Vuid = vuid
                     },
                     Data = new { Order = order }
                 };
                 string payLoad = SerializeToJson(data);
 
-                PostPayload(payLoad, "/v3/events");
+                PostPayload(payLoad, apiEvents);
             }
         }
 
@@ -107,54 +114,36 @@ namespace OdpTracking
             if (string.IsNullOrEmpty(odpEvent.Identifiers.Vuid) == false)
             {
                 string payLoad = SerializeToJson(odpEvent);
-                PostPayload(payLoad, "/v3/events");
+                PostPayload(payLoad, apiEvents);
             }
         }
 
-
         /// <summary>
-        /// Connects Vuid and Email. Useful when you do not have
+        /// Connects Vuid, email and other fields. Useful when you do not have
         /// any other information about the profile, or you want
         /// to connect a new vuid to an email.
         /// </summary>
         /// <param name="email"></param>
         /// <param name="vuid"></param>
-        public void DiscoverProfile(string email, string vuid)
+        /// <param name="firstName"></param>
+        /// <param name="lastName"></param>
+        public void UpdateProfile(string vuid, string email, string firstName = null, string lastName = null)
         {
-            if(_odpTrackerOptions.IsConfigured() == false)
-                return;
-
-            if (string.IsNullOrEmpty(email) == false &&
-                string.IsNullOrEmpty(vuid) == false)
+            var profile = new OdpDtoProfile
             {
-                var payLoad = SerializeToJson(
-                    new
-                    {
-                        Attributes = new OdpDtoDiscoveryProfile
-                        {
-                            Email = EncodeEmail(email),
-                            Vuid = vuid
-                        }
-                    });
-
-                PostPayload(payLoad, "/v3/profiles");
-            }
+                Vuid = vuid,
+                Email = EncodeEmail(email),
+                FirstName = firstName,
+                LastName = lastName
+            };
+            UpdateProfile(profile);
         }
-
-        private string EncodeEmail(string email)
-        {
-            // Product Recs decodes the email address in the query string
-            // and replaces "+" with " ". Let's add that back
-            return email.Replace(" ", "+");
-        }
-
         public void UpdateProfile(OdpDtoProfile profile)
         {
             if(_odpTrackerOptions.IsConfigured() == false)
                 return;
 
-            if (string.IsNullOrEmpty(profile.Email) == false &&
-                string.IsNullOrEmpty(profile.Vuid) == false)
+            if (HasEmailAndVuid(profile.Email, profile.Vuid))
             {
                 var payLoad = SerializeToJson(new { Attributes = profile });
 
@@ -166,14 +155,15 @@ namespace OdpTracking
                 //     }
                 // }
 
-                PostPayload(payLoad, "/v3/profiles");
+                
+                PostPayload(payLoad, apiProfiles);
             }
         }
 
         public void UploadProducts(IEnumerable<OdpDtoProduct> products)
         {
             var payLoad = SerializeToJson(products);
-            PostPayload(payLoad, "/v3/objects/products");
+            PostPayload(payLoad, apiProducts);
         }
 
         private void PostPayload(string payLoad, string apiMethod)
@@ -193,19 +183,24 @@ namespace OdpTracking
 
         }
 
-        public string GetVuidFromHttpRequest(HttpRequest httpRequest)
+        public bool HasEmailAndVuid(string email, string vuid)
         {
-            return GetVuidFromHttpRequest(httpRequest.Cookies);
-        }
-
-        public string GetVuidFromHttpRequest(IRequestCookieCollection cookies)
-        {
-            if (cookies.TryGetValue("vuid", out var vuid))
+            if (string.IsNullOrEmpty(vuid) == false &&
+                IsValidEmail(email))
             {
-                return GetVuidFromCookieValue(vuid!); // Could still be null
+                return true;
             }
-            return null!;
+
+            return false;
+        }  
+        public bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+                return false;
+
+            return email.Contains('@');
         }
+        
 
         private string SerializeToJson(object obj)
         {
@@ -217,6 +212,14 @@ namespace OdpTracking
             var json = JsonSerializer.Serialize(obj, settings);
             return json;
         }
+        
+        private string EncodeEmail(string email)
+        {
+            // Product Recs decodes the email address in the query string
+            // and replaces "+" with " ". Let's add that back
+            return email.Replace(" ", "+");
+        }
+
 
 
     }
