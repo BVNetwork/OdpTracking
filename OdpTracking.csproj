@@ -4,6 +4,12 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>1.0.0-beta</Version>
+        <Title>ODP Tracking Library</Title>
+        <Authors>BV Network AS</Authors>
+        <Description>A library to help do tracking for ODP (both client and serverside.) </Description>
+        <RepositoryUrl>https://github.com/BVNetwork/OdpTracking</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
