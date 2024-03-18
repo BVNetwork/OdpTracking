@@ -101,6 +101,8 @@ namespace OdpTracking
                     Data = new { Order = order }
                 };
                 string payLoad = SerializeToJson(data);
+                _logger.LogDebug("Tracking order: " + order.OrderId);
+                _logger.LogDebug(payLoad);
 
                 PostPayload(payLoad, apiEvents);
             }

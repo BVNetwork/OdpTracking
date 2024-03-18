@@ -5,6 +5,19 @@ namespace OdpTracking.Dto
 {
     public class OdpDtoLineItem
     {
+        public OdpDtoLineItem()
+        {
+        }
+
+        public OdpDtoLineItem(string id, decimal price, double quantity, string sku, decimal subtotal)
+        {
+            Id = id;
+            Price = price;
+            Quantity = quantity;
+            Sku = sku;
+            Subtotal = subtotal;
+        }
+
         [JsonPropertyName("product_id")]
         public string Id { get; set; }
 
