@@ -1,8 +1,13 @@
 ﻿#nullable enable
 using Microsoft.AspNetCore.Http;
 
-namespace OdpTracking
+namespace OdpTracking.Client
 {
+    /// <summary>
+    /// Dynamic tracker id provider that picks the tracking id up from the HttpContext.
+    /// Use this if you have different tracker ids for different sites in your solution. Set the
+    /// tracker id as a property on your start page, and read it from there per request.
+    /// </summary>
     public class HttpContextOdpTrackerIdProvider : ITrackerIdProvider
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -26,7 +31,7 @@ namespace OdpTracking
             return string.Empty;
         }
 
-        public void SetTrackerIdItem(HttpContext httpContext, string trackerId)
+        public void SetTrackerIdForRequest(HttpContext httpContext, string trackerId)
         {
             if (_httpContextAccessor.HttpContext != null)
             {

@@ -2,8 +2,9 @@
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using OdpTracking.Configuration;
 
-namespace OdpTracking
+namespace OdpTracking.Http
 {
     public class OdpHttpClientHelper : IOdpHttpClientHelper
     {
@@ -22,11 +23,10 @@ namespace OdpTracking
 
         public T GetJson<T>(string apiMethod, string query, string payLoad)
         {
-            HttpResponseMessage response = null;
             bool success = TryMakeHttpCall(HttpMethod.Get,
                 apiMethod, query,
                 payLoad, out HttpStatusCode statusCode,
-                out response);
+                out var response);
             if (success)
             {
                 _logger.LogDebug("Successfull {method} to: {name}, result: {status}",
@@ -54,11 +54,10 @@ namespace OdpTracking
 
         public HttpStatusCode PostJson(string apiMethod, string payLoad)
         {
-            HttpResponseMessage response = null;
             bool success = TryMakeHttpCall(HttpMethod.Post,
                 apiMethod, null,
                 payLoad, out HttpStatusCode statusCode,
-                out response);
+                out var response);
             if (success)
             {
                 _logger.LogDebug("Successfull {method} to: {name}, result: {status}",
@@ -79,11 +78,11 @@ namespace OdpTracking
             return response.StatusCode;
         }
 
-        private bool TryMakeHttpCall(HttpMethod httpMethod, string apiMethod, string query,
+        protected bool TryMakeHttpCall(HttpMethod httpMethod, string apiMethod, string query,
             string payLoad, out HttpStatusCode statusCode, out HttpResponseMessage responseMessage)
         {
             var httpClient = _httpClientFactory.CreateClient("OdpTracker");
-            var uri = _trackerOptions.CreateUri(apiMethod, query);
+            var uri = CreateUri(_trackerOptions.BaseUrl, apiMethod, query);
 
             var requestMsg = new HttpRequestMessage(httpMethod, uri);
             if(payLoad != null)
@@ -100,7 +99,7 @@ namespace OdpTracking
             {
                 response = httpClient.Send(requestMsg);
             }
-            catch (System.Net.Http.HttpRequestException e)
+            catch (HttpRequestException e)
             {
                 statusCode = response != null ? response.StatusCode : 0;
                 _logger.LogError(e, "Error posting to: {name}, result: {status}",
@@ -124,6 +123,35 @@ namespace OdpTracking
             // var resultString = reader.ReadToEnd();
 
             return response.IsSuccessStatusCode;
+        }
+        
+        public Uri CreateUri(string baseUrl, string path, string query = null)
+        {
+            if(string.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path), "Path cannot be null");
+            
+            string url = baseUrl;
+            if (path.StartsWith('/') == false)
+            {
+                url = url + '/' + path;
+            }
+            else
+            {
+                url = url + path;
+            }
+
+            if (string.IsNullOrEmpty(query) == false)
+            {
+                if (query.StartsWith('?') == false)
+                {
+                    url = url + '?' + query;
+                }
+                else
+                {
+                    url = url + query;
+                }
+            }
+
+            return new Uri(url);
         }
     }
 }

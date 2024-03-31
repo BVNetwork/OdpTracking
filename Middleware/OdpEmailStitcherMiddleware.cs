@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using OdpTracking.Extensions;
 
 namespace OdpTracking.Middleware
 {
@@ -31,7 +32,7 @@ namespace OdpTracking.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            if (context.Request.Method.Equals("get", System.StringComparison.InvariantCultureIgnoreCase) &&
+            if (context.Request.Method.Equals("get", StringComparison.InvariantCultureIgnoreCase) &&
                 context.Request.Query.ContainsKey("recipientEmail"))
             {
                 // Note! We do not want to do any lookup or verification here. If we want to add more logic

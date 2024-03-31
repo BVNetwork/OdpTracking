@@ -1,20 +1,22 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.Configuration;
-using System.Text;
+﻿using System.Net;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using OdpTracking.Configuration;
 using OdpTracking.Dto;
+using OdpTracking.Http;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace OdpTracking
 {
-
+    /// <summary>
+    /// Main ODP server tracker implementation. Use the IOdpServerSideTracker through
+    /// dependency injection to get the correct implementation.
+    /// </summary>
     public class OdpServerSideTracker : IOdpServerSideTracker
     {
-        const string apiProfiles = "/v3/profiles";
-        const string apiProducts = "/v3/objects/products";
-        const string apiEvents = "/v3/events";
+        private const string ApiProfilesUrlSegment = "/v3/profiles";
+        private const string ApiProductsUrlSegment = "/v3/objects/products";
+        private const string ApiEventsUrlSegment = "/v3/events";
         private readonly ILogger<OdpServerSideTracker> _logger;
         private readonly IOdpHttpClientHelper _httpClientHelper;
         private readonly IOdpTrackerOptions _odpTrackerOptions;
@@ -104,7 +106,7 @@ namespace OdpTracking
                 _logger.LogDebug("Tracking order: " + order.OrderId);
                 _logger.LogDebug(payLoad);
 
-                PostPayload(payLoad, apiEvents);
+                PostPayload(payLoad, ApiEventsUrlSegment);
             }
         }
 
@@ -116,7 +118,7 @@ namespace OdpTracking
             if (string.IsNullOrEmpty(odpEvent.Identifiers.Vuid) == false)
             {
                 string payLoad = SerializeToJson(odpEvent);
-                PostPayload(payLoad, apiEvents);
+                PostPayload(payLoad, ApiEventsUrlSegment);
             }
         }
 
@@ -157,34 +159,25 @@ namespace OdpTracking
                 //     }
                 // }
 
-                
-                PostPayload(payLoad, apiProfiles);
+                PostPayload(payLoad, ApiProfilesUrlSegment);
             }
         }
 
         public void UploadProducts(IEnumerable<OdpDtoProduct> products)
         {
             var payLoad = SerializeToJson(products);
-            PostPayload(payLoad, apiProducts);
+            PostPayload(payLoad, ApiProductsUrlSegment);
         }
 
         private void PostPayload(string payLoad, string apiMethod)
         {
             var statusCode = _httpClientHelper.PostJson(apiMethod, payLoad);
-        }
-
-        public string GetVuidFromCookieValue(string cookieValue)
-        {
-
-            if (!string.IsNullOrWhiteSpace(cookieValue) && cookieValue.Length > 35)
+            if(statusCode != HttpStatusCode.OK)
             {
-                return cookieValue.Substring(0, 36).Replace("-", string.Empty);
+                _logger.LogError("Posting payload to {apiMethod} failed with status code: {statusCode}", apiMethod, statusCode);
             }
-
-            return null!;
-
         }
-
+        
         public bool HasEmailAndVuid(string email, string vuid)
         {
             if (string.IsNullOrEmpty(vuid) == false &&

@@ -1,7 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using OdpTracking.Client;
+using OdpTracking.Configuration;
+using OdpTracking.Http;
+
 // ReSharper disable UnusedType.Global
 
-namespace OdpTracking
+namespace OdpTracking.Extensions
 {
     public static class OdpTrackingServiceExtensions
     {

@@ -19,7 +19,7 @@ namespace OdpTracking.Api
         public string Surname { get; set; }
         
         [JsonProperty(propertyName: "isKnown")]
-        public bool IsKnown { get; set; } = false;
+        public bool IsKnown { get; set; }
 
         public static OdpDtoMe FromProfile(OdpDtoCustomerProfile profile)
         {

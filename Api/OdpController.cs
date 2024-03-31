@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using OdpTracking.Dto;
+using OdpTracking.Extensions;
+using OdpTracking.Http;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
@@ -12,13 +13,11 @@ namespace OdpTracking.Api
     public class OdpController : ControllerBase
     {
         private readonly ILogger<OdpController> _logger;
-        private readonly IOdpServerSideTracker _odpServerSideTracker;
         private readonly IOdpHttpClientHelper _clientHelper;
 
-        public OdpController(ILogger<OdpController> logger, IOdpServerSideTracker odpServerSideTracker, IOdpHttpClientHelper clientHelper)
+        public OdpController(ILogger<OdpController> logger, IOdpHttpClientHelper clientHelper)
         {
             _logger = logger;
-            _odpServerSideTracker = odpServerSideTracker;
             _clientHelper = clientHelper;
         }
 

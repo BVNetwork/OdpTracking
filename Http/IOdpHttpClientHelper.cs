@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace OdpTracking
+namespace OdpTracking.Http
 {
     public interface IOdpHttpClientHelper
     {

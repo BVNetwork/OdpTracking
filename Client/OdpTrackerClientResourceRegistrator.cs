@@ -1,15 +1,18 @@
 ﻿using EPiServer.Framework.Web.Resources;
 
-namespace OdpTracking
+namespace OdpTracking.Client
 {
+    public static class OdpTrackerClientResourceGlobals
+    {
+        public static string ScriptKey = "odp.clientresource.script";
+    }
+    
     [ClientResourceRegistrator]
     public class OdpTrackerClientResourceRegistrator : IClientResourceRegistrator
     {
-        private static string ScriptKey = "contentpersonalization.script.recommendations";
-
         public void RegisterResources(IRequiredClientResourceList requiredResources)
         {
-            requiredResources.Require(ScriptKey).AtHeader();
+            requiredResources.Require(OdpTrackerClientResourceGlobals.ScriptKey).AtHeader();
         }
     }
 
@@ -18,7 +21,6 @@ namespace OdpTracking
     public class OdpTrackerClientResourceProvider : IClientResourceProvider
     {
         private readonly ITrackerIdProvider _idProvider;
-        private static string ScriptKey = "contentpersonalization.script.recommendations";
 
         public OdpTrackerClientResourceProvider(ITrackerIdProvider idProvider)
         {
@@ -30,11 +32,11 @@ namespace OdpTracking
             var trackerId = _idProvider.GetTrackerId();
             if (string.IsNullOrEmpty(trackerId) == false)
             {
-                return (IEnumerable<ClientResource>)new ClientResource[1]
+                return new[]
                 {
-                    new ClientResource()
+                    new ClientResource
                     {
-                        Name = ScriptKey,
+                        Name = OdpTrackerClientResourceGlobals.ScriptKey,
                         ResourceType = ClientResourceType.Script,
                         // Adds correct tracking id to script
                         InlineContent =

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace OdpTracking
+namespace OdpTracking.Extensions
 {
     public static class VuidExtensions
     {
