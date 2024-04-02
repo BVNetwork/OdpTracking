@@ -12,6 +12,7 @@
         <Authors>BV Network AS</Authors>
         <Description>A library to help do tracking for ODP (both client and serverside.) </Description>
         <RepositoryUrl>https://github.com/BVNetwork/OdpTracking</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/BVNetwork/OdpTracking</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
