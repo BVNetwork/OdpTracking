@@ -71,7 +71,7 @@ namespace OdpTracking.Client
         };
         public override HtmlString GetJavascriptCall()
         {
-            if(ProductId == null) throw new ArgumentNullException(paramName: nameof(ProductId));
+            if (ProductId == null) return HtmlString.Empty;
             
             return base.GetJavascriptCall(new List<KeyValuePair<string, string>>
             {
@@ -92,7 +92,8 @@ namespace OdpTracking.Client
 
         public override HtmlString GetJavascriptCall()
         {
-            if(SearchTerm == null) throw new ArgumentNullException(paramName: nameof(SearchTerm));
+            // Forgiving implementation
+            if(SearchTerm == null) return HtmlString.Empty;
             
             return base.GetJavascriptCall(new List<KeyValuePair<string, string>>
             {

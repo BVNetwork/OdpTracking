@@ -7,7 +7,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>1.0.0-beta</Version>
+        <Version>1.1.1-beta</Version>
         <Title>ODP Tracking Library</Title>
         <Authors>BV Network AS</Authors>
         <Description>A library to help do tracking for ODP (both client and serverside.) </Description>
