@@ -1,7 +1,7 @@
 # OdpTracking
 This library helps doing both server and client side tracking to Optimizely Data Platform.
 
-**Note** This library implements a "forgiving API", which means it will attempt to return valid, but empty results instead of throwing argument exceptions. If you forget to pass a parameter, og pass a null value, you will most likely not get an error, but no tracking or results will be returned. This has been done to prevent tracking errors or missing input validation to crash the site, as this type of tracking is typically not crucial for the site operation.
+**Note** This library implements a "forgiving API", which means it will attempt to return valid, but empty results instead of throwing argument exceptions. If you forget to pass a parameter, or pass a null value, you will most likely not get an error, but no tracking will happen and no results will be returned. This is to prevent coding errors or missing input validation to crash the site, as this type of functionality is typically not crucial for the site operation.
 
 ## Installation
 
