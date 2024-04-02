@@ -64,6 +64,11 @@ namespace OdpTracking.Client
             Action = "add_to_wishlist",
             ProductId = productId
         };
+        public static ProductEvent Detail(string productId) => new()
+        {
+            Action = GetCurrentMethod(),
+            ProductId = productId
+        };
         public override HtmlString GetJavascriptCall()
         {
             if(ProductId == null) throw new ArgumentNullException(paramName: nameof(ProductId));
@@ -71,6 +76,27 @@ namespace OdpTracking.Client
             return base.GetJavascriptCall(new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("product_id", ProductId)
+            });
+        }
+    }
+    
+    public class SearchEvent : OdpClientEvent
+    {
+        public virtual string SearchTerm { get; set; }
+        public override string Type { get; } = OdpClientSideEventTypes.Search.ToString();
+        public static SearchEvent Search(string searchTerm) => new()
+        {
+            Action = GetCurrentMethod(),
+            SearchTerm = searchTerm
+        };
+
+        public override HtmlString GetJavascriptCall()
+        {
+            if(SearchTerm == null) throw new ArgumentNullException(paramName: nameof(SearchTerm));
+            
+            return base.GetJavascriptCall(new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("search_term", SearchTerm)
             });
         }
     }
@@ -86,6 +112,7 @@ namespace OdpTracking.Client
         Consent,
         Reachability,
         Web_Modal,
-        Web_Embed
+        Web_Embed,
+        Search
     }
 }
