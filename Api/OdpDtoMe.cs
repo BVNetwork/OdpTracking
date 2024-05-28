@@ -21,13 +21,17 @@ namespace OdpTracking.Api
         [JsonProperty(propertyName: "isKnown")]
         public bool IsKnown { get; set; }
 
+        [JsonProperty(propertyName: "isAnonymous")]
+        public bool IsAnonymous { get; set; } = true;
+
         public static OdpDtoMe FromProfile(OdpDtoCustomerProfile profile)
         {
             if(profile == null || profile.Attributes == null)
             {
                 return new OdpDtoMe
                 {
-                    IsKnown = false
+                    IsKnown = false,
+                    IsAnonymous = true
                 };
             }
             

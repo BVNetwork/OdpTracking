@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using OdpTracking.Configuration;
 using OdpTracking.Dto;
+using OdpTracking.Extensions;
 using OdpTracking.Http;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -35,16 +36,17 @@ namespace OdpTracking
         {
             TrackSingleEvent(email, vuid, "account", "login");
         }
+
         public void TrackLogout(string email, string vuid)
         {
             TrackSingleEvent(email, vuid, "account", "logout");
         }
-        
+
         public void TrackSingleEvent(string email, string vuid, string type, string action)
         {
-            if(_odpTrackerOptions.IsConfigured() == false)
+            if (_odpTrackerOptions.IsConfigured() == false)
                 return;
-            
+
             if (HasEmailAndVuid(email, vuid))
             {
                 /*
@@ -55,7 +57,7 @@ namespace OdpTracking
         "email": "test_vuid_withunderscore_3@optimizely.com",
         "vuid": "6067f061d0f04b76812dc0308270a6e2"
     }
-}                 
+}
                  */
 
                 var data = new OdpDtoEvent
@@ -70,12 +72,11 @@ namespace OdpTracking
                 };
                 TrackEvent(data);
             }
-
         }
 
         public void TrackOrder(string email, string vuid, OdpDtoOrder order)
         {
-            if(_odpTrackerOptions.IsConfigured() == false)
+            if (_odpTrackerOptions.IsConfigured() == false)
                 return;
 
             if (HasEmailAndVuid(email, vuid))
@@ -88,7 +89,7 @@ namespace OdpTracking
         "email": "test_vuid_withunderscore_3@optimizely.com",
         "vuid": "6067f061d0f04b76812dc0308270a6e2"
     }
-}                 
+}
                  */
 
                 var data = new OdpDtoOrderEvent
@@ -112,7 +113,7 @@ namespace OdpTracking
 
         public void TrackEvent(OdpDtoEvent odpEvent)
         {
-            if(_odpTrackerOptions.IsConfigured() == false)
+            if (_odpTrackerOptions.IsConfigured() == false)
                 return;
 
             if (string.IsNullOrEmpty(odpEvent.Identifiers.Vuid) == false)
@@ -142,9 +143,10 @@ namespace OdpTracking
             };
             UpdateProfile(profile);
         }
+
         public void UpdateProfile(OdpDtoProfile profile)
         {
-            if(_odpTrackerOptions.IsConfigured() == false)
+            if (_odpTrackerOptions.IsConfigured() == false)
                 return;
 
             if (HasEmailAndVuid(profile.Email, profile.Vuid))
@@ -172,12 +174,13 @@ namespace OdpTracking
         private void PostPayload(string payLoad, string apiMethod)
         {
             var statusCode = _httpClientHelper.PostJson(apiMethod, payLoad);
-            if(statusCode != HttpStatusCode.OK)
+            if (statusCode.IsSuccessStatusCode() == false)
             {
-                _logger.LogError("Posting payload to {apiMethod} failed with status code: {statusCode}", apiMethod, statusCode);
+                _logger.LogError("Posting payload to {apiMethod} failed with status code: {statusCode}", apiMethod,
+                    statusCode);
             }
         }
-        
+
         public bool HasEmailAndVuid(string email, string vuid)
         {
             if (string.IsNullOrEmpty(vuid) == false &&
@@ -187,7 +190,8 @@ namespace OdpTracking
             }
 
             return false;
-        }  
+        }
+
         public bool IsValidEmail(string email)
         {
             if (string.IsNullOrEmpty(email))
@@ -195,7 +199,7 @@ namespace OdpTracking
 
             return email.Contains('@');
         }
-        
+
 
         private string SerializeToJson(object obj)
         {
@@ -207,15 +211,12 @@ namespace OdpTracking
             var json = JsonSerializer.Serialize(obj, settings);
             return json;
         }
-        
+
         private string EncodeEmail(string email)
         {
             // Product Recs decodes the email address in the query string
             // and replaces "+" with " ". Let's add that back
             return email.Replace(" ", "+");
         }
-
-
-
     }
 }

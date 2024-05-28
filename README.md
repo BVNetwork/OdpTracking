@@ -219,10 +219,12 @@ It produces the following JavaScript if the Model.CurrentPage.Sku is null or emp
     Add to Wishlist
 </a>
 ```
-
 Relevant client tracking classes:
-* AccountEvent.Logout()
-* ProductEvent.AddToWishlist(product_id)
-* ProductEvent.Detail(product_id)
-* SearchEvent.Search(search_term)
+* AccountEvent
+  * Logout()
+* ProductEvent
+  * AddToWishlist(product_id)
+  * Detail(product_id)
+* SearchEvent
+  * Search(search_term) 
 
